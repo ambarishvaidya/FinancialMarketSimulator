@@ -47,7 +47,7 @@ public class TestSpot
     {
         ILoggerFactory loggerFactory = new LoggerFactory();
         TickDefinition[] tickDefinitions = new TickDefinition[1];
-        tickDefinitions[0] = new TickDefinition("EURUSD", 1.0, 1.0, 1.0, 1);
+        tickDefinitions[0] = new TickDefinition("EURUSD", 1.0, 1.0004, 1.0, 1);
         ISpot spot = new Spot(loggerFactory, tickDefinitions);
         Assert.IsNotNull(spot);
     }
