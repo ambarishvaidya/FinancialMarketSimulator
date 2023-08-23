@@ -52,6 +52,7 @@ public class Spot : ISpot
         _currentstate = State.NotSetUp;
         _logger.LogInformation($"Current State: {_currentstate}");
         _tickDefinitionsDictionary = new ConcurrentDictionary<string, TickDefinition>();
+        _ccyPairLimitMap = new Dictionary<string, PriceLimit>();
         Initialize();
     }
 
@@ -153,7 +154,9 @@ public class Spot : ISpot
 
         foreach (TickDefinition tickDefinition in _tickDefinitionsDictionary.Values)
         {
-            _ccyPairLimitMap.Add(tickDefinition.CurrencyPair, _pricer.SetPriceLimitForBidAsk(tickDefinition.Bid, tickDefinition.Ask));
+            var pl = _pricer.SetPriceLimitForBidAsk(tickDefinition.Bid, tickDefinition.Ask);
+            _logger.LogInformation($"Price Limit for {tickDefinition.CurrencyPair} is {pl}");
+            _ccyPairLimitMap.Add(tickDefinition.CurrencyPair, pl);
         }
 
         _currentstate = _tickDefinitionsDictionary.Any() ? State.SetUp : State.NotSetUp;
@@ -204,6 +207,7 @@ public class Spot : ISpot
 
                     double fraction = _random.NextDouble() / 100 * (_random.Next(2) % 2 == 0 ? 1 : -1) / 2;
                     _pricer.NextPrice(rates, fraction, _random.Next(2) % 2 == 0, _ccyPairLimitMap[pairKey]);
+                    rates[2] = Math.Abs(rates[0] + rates[1])/2;
                     //GenerateRandomDeviation(rates,_random.NextDouble(), _random.Next(1, 3), _random.Next(1, 10) %  2 == 0);
                     _logger.LogInformation($"Updated {pairKey} with {rates[0]}, {rates[1]}, {rates[2]}");
                     OnTickUpdate?.Invoke(pairKey + " : " + rates[0] + ", " + rates[1] + ", "+ rates[2]);                    
@@ -216,16 +220,14 @@ public class Spot : ISpot
     {
         _currencyPairs = new ConcurrentDictionary<string, (double[], int)>();
         _pairsByFrequency = new ConcurrentDictionary<int, ConcurrentQueue<string>>();
-        _timersByFrequency = new ConcurrentDictionary<int, System.Timers.Timer>();
-        _ccyPairLimitMap = new Dictionary<string, PriceLimit>();
+        _timersByFrequency = new ConcurrentDictionary<int, System.Timers.Timer>();        
     }
 
     private void ClearDataStructuresAndStopTimers()
     {
         _logger.LogInformation($"Clearing data structures and stopping timers.");
         _currencyPairs?.Clear();
-        _pairsByFrequency?.Clear();
-        _ccyPairLimitMap?.Clear();
+        _pairsByFrequency?.Clear();        
         if (_timersByFrequency?.Count > 0)
         {
             foreach (var timer in _timersByFrequency.Values)
