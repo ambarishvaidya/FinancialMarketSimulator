@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="6.1.0" />
-    <PackageReference Include="PriceProducer" Version="1.0.0" />
+    <PackageReference Include="PriceProducer" Version="1.0.0.2" />
   </ItemGroup>
 
   <ItemGroup>

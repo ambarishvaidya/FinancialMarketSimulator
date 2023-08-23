@@ -9,17 +9,17 @@
     <Title>FinancialMarketSimulator.Forex</Title>
     <PackageId>FinancialMarketSimulator.Forex</PackageId>
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
-<Version>1.0.0.2</Version>
+<Version>1.0.0.5</Version>
 <Authors>ambarish.vaidya</Authors>
 <Product>Financial Market Simulator</Product>
-<AssemblyVersion>1.0.0.2</AssemblyVersion>
-<FileVersion>1.0.0.2</FileVersion>	
+<AssemblyVersion>1.0.0.5</AssemblyVersion>
+<FileVersion>1.0.0.5</FileVersion>	
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvObjectify" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-    <PackageReference Include="PriceProducer" Version="1.0.0" />
+    <PackageReference Include="PriceProducer" Version="1.0.0.2" />
   </ItemGroup>
   
   <ItemGroup>
