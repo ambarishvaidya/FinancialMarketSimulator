@@ -15,18 +15,18 @@ namespace ConsoleClientForex
         private readonly int ADDNEWPAIR_TIME = 15000;
         private readonly int PAUSE_TIME = 20000;
         private readonly int RESUME_TIME = 10000;
-        private readonly int STOP_TIME = 5000;        
+        private readonly int STOP_TIME = 5000;
 
         private bool _createFromFile = true;
 
         public RunSpot()
-        {            
+        {
             ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddLog4Net());
             _logger = loggerFactory.CreateLogger<RunSpot>();
 
-            
+
             spot = _createFromFile ? CreateSpotFromFile(loggerFactory) : CreateSpotFromTickerDefinition(loggerFactory);
-            
+
             spot.OnTickUpdate += Spot_OnTickUpdate;
 
             _addNewPair = new System.Timers.Timer(ADDNEWPAIR_TIME);
@@ -44,7 +44,7 @@ namespace ConsoleClientForex
 
             spot.Start();
             _addNewPair.Start();
-            if(File.Exists(_testFilePath))
+            if (File.Exists(_testFilePath))
                 File.Delete(_testFilePath);
         }
 
@@ -71,12 +71,12 @@ namespace ConsoleClientForex
             _resumeTimer.Stop();
             _resumeTimer.Dispose();
             spot.Resume();
-            _logger.LogInformation($"Stopping the application in {STOP_TIME/1000} seconds");
+            _logger.LogInformation($"Stopping the application in {STOP_TIME / 1000} seconds");
             _stopTimer.Start();
         }
 
         private void PauseTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {           
+        {
             spot.Pause();
             _pauseTimer.Stop();
             _pauseTimer.Dispose();
@@ -85,12 +85,12 @@ namespace ConsoleClientForex
             _logger.LogInformation(Environment.NewLine + "Currently Registered Paris and Frequency!");
             _logger.LogInformation(string.Join("", spot.GetScheduledTicks().Select(item => Environment.NewLine + item.ccyPair + " @ " + item.frequency)));
             _resumeTimer.Start();
-            _logger.LogInformation($"Will resume in {RESUME_TIME/1000} seconds");
+            _logger.LogInformation($"Will resume in {RESUME_TIME / 1000} seconds");
         }
 
         private async Task Spot_OnTickUpdate(string tickData)
         {
-            await Task.Run(() => ProcessTickData(tickData));            
+            await Task.Run(() => ProcessTickData(tickData));
         }
 
         private void ProcessTickData(string tickData)
