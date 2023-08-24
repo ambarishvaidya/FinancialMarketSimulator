@@ -213,7 +213,7 @@ public class Spot : ISpot
 
                 // Create the timer and add it to timersByFrequency
                 var timer = new System.Timers.Timer(publishFrequency);
-                timer.Elapsed += (sender, e) => PublishCurrencies(publishFrequency);
+                timer.Elapsed += (sender, e) => PublishTimerElapsed(publishFrequency);
                 timer.AutoReset = true;
                 _timersByFrequency.TryAdd(publishFrequency, timer);
             }
@@ -222,15 +222,15 @@ public class Spot : ISpot
         }
     }
 
-    private void PublishCurrencies(int updateFrequency)
+    private void PublishTimerElapsed(int updateFrequency)
     {
         var timer = _timersByFrequency[updateFrequency];
         timer.Stop();
-        UpdateCurrencyPairs(updateFrequency);
+        PublishNextTick(updateFrequency);
         timer.Start();
     }
 
-    private void UpdateCurrencyPairs(int updateFrequency)
+    private void PublishNextTick(int updateFrequency)
     {
         if (_pairsByFrequency.TryGetValue(updateFrequency, out var pairs))
         {
