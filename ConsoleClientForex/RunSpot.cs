@@ -110,24 +110,8 @@ namespace ConsoleClientForex
             {
                 sw.WriteLine("CurrencyPair,Bid,Ask,Spread,PublishFrequencyInMs");
                 sw.WriteLine("EURUSD, 1.1234, 1.1235, 1.1236, 1500");
-                //sw.WriteLine("EURGBP1, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP2, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP3, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP4, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP5, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP6, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP7, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP8, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP9, 0.8901, 0.8902, 0.8903, 123");
-                //sw.WriteLine("EURGBP06, 0.8901, 0.8902, 0.8903, 1230");
-                //sw.WriteLine("EURGBP03, 0.8901, 0.8902, 0.8903, 1230");
-                //sw.WriteLine("EURGBP03, 0.8901, 0.8902, 0.8903, 1230");
-                //sw.WriteLine("EURGBP03, 0.8901, 0.8902, 0.8903, 1230");
-                //sw.WriteLine("EURGBP04, 0.8901, 0.8902, 0.8903, 1230");
-                //sw.WriteLine("EURGBP05, 0.8901, 0.8902, 0.8903, 1230");
-                //sw.WriteLine("EURGBP06, 0.8901, 0.8902, 0.8903, 1230");
-
-
+                sw.WriteLine("EURGBP, 0.8901, 0.8902, 0.8903, 230");
+                sw.WriteLine("EURJPY, 120.1234, 120.1235, 120.1236, 2000");
             }
             return new Forex.Spot(loggerFactory, _testFilePath);
         }
