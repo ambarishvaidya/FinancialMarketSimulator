@@ -25,7 +25,9 @@ public class Spot : ISpot
     public event OnTickUpdate OnTickUpdate;
 
     internal Spot()
-    { }
+    { 
+        _logger = new LoggerFactory().CreateLogger<Spot>();
+    }
 
     public Spot(ILoggerFactory loggerFactory) : this(loggerFactory, null, null)
     { }
@@ -148,6 +150,17 @@ public class Spot : ISpot
         _logger.LogInformation($"Added tick definition: {tickDefinition}");
     }
 
+    public string[] Ticks => _tickDefinitionsDictionary.Values.Select(cp => cp.tickDefinition.CurrencyPair).ToArray();
+
+    public State CurrentState => _currentstate;
+
+    public TickDefinition this[string currencyPair] => _tickDefinitionsDictionary[currencyPair].tickDefinition;
+
+    public (string ccyPair, int frequency)[] GetScheduledTicks()
+    {
+        return _currencyPairs.Select(item => (item.Key, item.Value.updateFrequency)).ToArray();
+    }
+
     internal PriceLimit GetPriceLimit(TickDefinition tickDefinition)
     {
         PriceLimit priceLimit = null;
@@ -161,17 +174,6 @@ public class Spot : ISpot
         }
 
         return priceLimit;
-    }
-
-    public string[] Ticks => _tickDefinitionsDictionary.Values.Select(cp => cp.tickDefinition.CurrencyPair).ToArray();
-
-    public State CurrentState => _currentstate;
-
-    public TickDefinition this[string currencyPair] => _tickDefinitionsDictionary[currencyPair].tickDefinition;
-
-    public (string ccyPair, int frequency)[] GetScheduledTicks()
-    {
-        return _currencyPairs.Select(item => (item.Key, item.Value.updateFrequency)).ToArray();
     }
 
     private void Initialize()

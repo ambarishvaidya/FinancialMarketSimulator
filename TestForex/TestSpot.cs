@@ -301,5 +301,16 @@ public class TestSpot
         ISpot spot = new Spot(loggerFactory, tickerDefn);
         spot.Start();
         Assert.That(spot.GetScheduledTicks().Count, Is.EqualTo(0));
+    }
+
+    [TestCase("EURUSD", 1, 1, -1, 1)]
+    [TestCase("EURUSD", 1, 1, 0, 1)]
+    [TestCase("EURUSD", 110, 110.861, 20, 1000)]
+    public void GetPriceLimit_WithAnyFields_DoesNotThrowException(string ccy, double bid, double ask, double spread, int freq)
+    {
+
+        var tickDefn = new TickDefinition(ccy, bid, ask, spread, freq);
+        Spot spot = new Spot();        
+        Assert.DoesNotThrow(() => spot.GetPriceLimit(tickDefn));
     }    
 }
