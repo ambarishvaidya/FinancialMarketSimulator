@@ -207,8 +207,9 @@ public class Spot : ISpot
 
                     double fraction = _random.NextDouble() / 100 * (_random.Next(2) % 2 == 0 ? 1 : -1) / 2;
                     _pricer.NextPrice(rates, fraction, _random.Next(2) % 2 == 0, _ccyPairLimitMap[pairKey]);
-                    rates[2] = Math.Abs(rates[0] + rates[1])/2;
-                    _logger.LogInformation($"Updated {pairKey} with {rates[0]}, {rates[1]}, {rates[2]}");
+                    rates[2] = Math.Abs(rates[0] + rates[1])/2;                    
+                    if(_logger.IsEnabled(LogLevel.Debug))
+                        _logger.LogDebug($"Updated {pairKey} with {rates[0]}, {rates[1]}, {rates[2]}");
                     OnTickUpdate?.Invoke(pairKey + " : " + rates[0] + ", " + rates[1] + ", "+ rates[2]);                    
                 }
             });
