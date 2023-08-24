@@ -222,6 +222,11 @@ public class Spot : ISpot
         }
     }
 
+    /// <summary>
+    /// Called on every timer elapsed event. The method will stop the timer, 
+    /// publish the next tick and restart the timer.    
+    /// </summary>
+    /// <param name="updateFrequency"></param>
     private void PublishTimerElapsed(int updateFrequency)
     {
         var timer = _timersByFrequency[updateFrequency];
@@ -230,6 +235,11 @@ public class Spot : ISpot
         timer.Start();
     }
 
+    /// <summary>
+    /// Publishes the next tick for all currency pairs with the given update frequency.
+    /// Method calls NextPrice() on the Pricer object to update the bid, ask prices.
+    /// </summary>
+    /// <param name="updateFrequency"></param>
     private void PublishNextTick(int updateFrequency)
     {
         if (_pairsByFrequency.TryGetValue(updateFrequency, out var pairs))
