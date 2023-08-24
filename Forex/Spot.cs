@@ -12,11 +12,10 @@ public class Spot : ISpot
     private State _currentstate = State.NotSetUp;
     private TickDefinition[] _tickDefinitions;
 
-    private ConcurrentDictionary<string, TickDefinition> _tickDefinitionsDictionary;
+    private ConcurrentDictionary<string, (TickDefinition tickDefinition, PriceLimit priceLimit)> _tickDefinitionsDictionary;
     internal ConcurrentDictionary<string, (double[] rates, int updateFrequency)> _currencyPairs;
     internal ConcurrentDictionary<int, ConcurrentQueue<string>> _pairsByFrequency;
-    internal ConcurrentDictionary<int, System.Timers.Timer> _timersByFrequency;
-    private Dictionary<string, PriceLimit> _ccyPairLimitMap;
+    internal ConcurrentDictionary<int, System.Timers.Timer> _timersByFrequency;    
 
     internal FileDataExtractor _fileDataExtractor;
 
@@ -49,8 +48,7 @@ public class Spot : ISpot
         _fileDataExtractor = new FileDataExtractor(loggerFactory);
         _currentstate = State.NotSetUp;
         _logger.LogInformation($"Current State: {_currentstate}");
-        _tickDefinitionsDictionary = new ConcurrentDictionary<string, TickDefinition>();
-        _ccyPairLimitMap = new Dictionary<string, PriceLimit>();
+        _tickDefinitionsDictionary = new ConcurrentDictionary<string, (TickDefinition tickDefinition, PriceLimit priceLimit)>();
         Initialize();
     }
 
@@ -130,20 +128,46 @@ public class Spot : ISpot
             _logger.LogWarning($"Invalid tick definition: {tickDefinition}");
             return;
         }
-        _tickDefinitionsDictionary.AddOrUpdate(tickDefinition.CurrencyPair, tickDefinition,
+
+        PriceLimit priceLimit = null;
+        priceLimit = GetPriceLimit(tickDefinition);
+        if (priceLimit == null)
+        {
+            _logger.LogWarning($"Invalid tick definition: {tickDefinition}. Not adding for Processing!");
+            return;
+        }
+
+        _logger.LogInformation($"Price Limit for {tickDefinition.CurrencyPair} is {priceLimit}");        
+
+        _tickDefinitionsDictionary.AddOrUpdate(tickDefinition.CurrencyPair, (tickDefinition, priceLimit),
             (key, oldValue) =>
             {
                 _logger.LogWarning($"Tick definition already exists for {key}. Overwriting with new value. {tickDefinition}");
-                return tickDefinition;
+                return (tickDefinition, priceLimit);
             });
         _logger.LogInformation($"Added tick definition: {tickDefinition}");
     }
 
-    public string[] Ticks => _tickDefinitionsDictionary.Values.Select(cp => cp.CurrencyPair).ToArray();
+    internal PriceLimit GetPriceLimit(TickDefinition tickDefinition)
+    {
+        PriceLimit priceLimit = null;
+        try
+        {
+            priceLimit = _pricer.SetPriceLimitForBidAskSpread(tickDefinition.Bid, tickDefinition.Ask, tickDefinition.Spread);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, $"Error while setting price limit for {tickDefinition}");
+        }
+
+        return priceLimit;
+    }
+
+    public string[] Ticks => _tickDefinitionsDictionary.Values.Select(cp => cp.tickDefinition.CurrencyPair).ToArray();
 
     public State CurrentState => _currentstate;
 
-    public TickDefinition this[string currencyPair] => _tickDefinitionsDictionary[currencyPair];
+    public TickDefinition this[string currencyPair] => _tickDefinitionsDictionary[currencyPair].tickDefinition;
 
     public (string ccyPair, int frequency)[] GetScheduledTicks()
     {
@@ -168,24 +192,17 @@ public class Spot : ISpot
             }
         }
 
-        foreach (TickDefinition tickDefinition in _tickDefinitionsDictionary.Values)
-        {
-            var pl = _pricer.SetPriceLimitForBidAskSpread(tickDefinition.Bid, tickDefinition.Ask, tickDefinition.Spread);
-            _logger.LogInformation($"Price Limit for {tickDefinition.CurrencyPair} is {pl}");
-            _ccyPairLimitMap.Add(tickDefinition.CurrencyPair, pl);
-        }
-
         _currentstate = _tickDefinitionsDictionary.Any() ? State.SetUp : State.NotSetUp;
         _logger.LogInformation($"Current State: {CurrentState}");
     }
 
     private void ScheduleTimers()
     {
-        foreach (TickDefinition tickDefinition in _tickDefinitionsDictionary.Values)
+        foreach (var tdpl in _tickDefinitionsDictionary.Values)
         {
-            int publishFrequency = tickDefinition.PublishFrequencyInMs.AdjustedPublishTime(PUBLISH_FREQUENCY);
-            var ccyPair = tickDefinition.CurrencyPair;
-            var dataTuple = (new double[] { tickDefinition.Bid, tickDefinition.Ask, tickDefinition.Spread }, publishFrequency);
+            int publishFrequency = tdpl.tickDefinition.PublishFrequencyInMs.AdjustedPublishTime(PUBLISH_FREQUENCY);
+            var ccyPair = tdpl.tickDefinition.CurrencyPair;
+            var dataTuple = (new double[] { tdpl.tickDefinition.Bid, tdpl.tickDefinition.Ask, tdpl.tickDefinition.Spread }, publishFrequency);
 
             _currencyPairs.AddOrUpdate(ccyPair, dataTuple, (key, oldValue) => dataTuple);
             if (!_pairsByFrequency.ContainsKey(publishFrequency))
@@ -222,7 +239,7 @@ public class Spot : ISpot
                     var rates = pairInfo.rates;
 
                     double fraction = _random.NextDouble() / 100 * (_random.Next(2) % 2 == 0 ? 1 : -1) / 2;
-                    _pricer.NextPrice(rates, fraction, _random.Next(2) % 2 == 0, _ccyPairLimitMap[pairKey]);
+                    _pricer.NextPrice(rates, fraction, _random.Next(2) % 2 == 0, _tickDefinitionsDictionary[pairKey].priceLimit);
                     rates[2] = Math.Abs(rates[0] + rates[1]) / 2;
                     if (_logger.IsEnabled(LogLevel.Debug))
                         _logger.LogDebug($"Updated {pairKey} with {rates[0]}, {rates[1]}, {rates[2]}");
