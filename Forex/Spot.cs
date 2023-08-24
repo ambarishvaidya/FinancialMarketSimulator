@@ -1,9 +1,5 @@
-﻿using CsvObjectify;
-using CsvObjectify.Column;
-using CsvObjectify.Column.Helper;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PriceProducer;
-using System;
 using System.Collections.Concurrent;
 
 namespace Forex;
@@ -15,14 +11,16 @@ public class Spot : ISpot
     private string _filePath;
     private State _currentstate = State.NotSetUp;
     private TickDefinition[] _tickDefinitions;
+
     private ConcurrentDictionary<string, TickDefinition> _tickDefinitionsDictionary;
     internal ConcurrentDictionary<string, (double[] rates, int updateFrequency)> _currencyPairs;
     internal ConcurrentDictionary<int, ConcurrentQueue<string>> _pairsByFrequency;
     internal ConcurrentDictionary<int, System.Timers.Timer> _timersByFrequency;
     private Dictionary<string, PriceLimit> _ccyPairLimitMap;
+
     internal FileDataExtractor _fileDataExtractor;
 
-    private Pricer _pricer;    
+    private Pricer _pricer;
     private readonly int PUBLISH_FREQUENCY = 100;
 
     public event OnTickUpdate OnTickUpdate;
@@ -43,7 +41,7 @@ public class Spot : ISpot
 
     private Spot(ILoggerFactory loggerFactory, string filePath, TickDefinition[] tickDefinitions)
     {
-        this._logger = loggerFactory.CreateLogger<Spot>();        
+        this._logger = loggerFactory.CreateLogger<Spot>();
         this._filePath = filePath;
         this._tickDefinitions = tickDefinitions;
 
@@ -56,11 +54,14 @@ public class Spot : ISpot
         Initialize();
     }
 
+    /// <summary>
+    /// Initializes the data structures, schedule and start the timers.
+    /// </summary>
     public void Start()
     {
         if (_tickDefinitionsDictionary.Count == 0)
         {
-            _logger.LogWarning("No tick definitions found.");            
+            _logger.LogWarning("No tick definitions found.");
         }
 
         ClearDataStructuresAndStopTimers();
@@ -74,6 +75,9 @@ public class Spot : ISpot
         _currentstate = _timersByFrequency.Values.Any() ? State.Started : _currentstate;
     }
 
+    /// <summary>
+    /// Pauses the tick publishing.
+    /// </summary>
     public void Pause()
     {
         if (_timersByFrequency.Count > 0)
@@ -88,6 +92,9 @@ public class Spot : ISpot
         _logger.LogInformation($"Current State: {CurrentState}");
     }
 
+    /// <summary>
+    /// Resumes the tick publishing.
+    /// </summary>
     public void Resume()
     {
         if (_timersByFrequency.Count > 0)
@@ -102,12 +109,20 @@ public class Spot : ISpot
         _logger.LogInformation($"Current State: {CurrentState}");
     }
 
+    /// <summary>
+    /// Stops the publishing. Clears all data structures and stops all timers.
+    /// </summary>
     public void Stop()
     {
         _logger.LogInformation($"Stopping timers.");
         ClearDataStructuresAndStopTimers();
     }
 
+    /// <summary>
+    /// Adds a tick definition to the list of tick definitions.
+    /// For the new tick to take into effect, the Start() method needs to be called.
+    /// </summary>
+    /// <param name="tickDefinition"></param>
     public void AddTickDefinition(TickDefinition tickDefinition)
     {
         if (!tickDefinition.IsTickDefinitionValid())
@@ -116,7 +131,8 @@ public class Spot : ISpot
             return;
         }
         _tickDefinitionsDictionary.AddOrUpdate(tickDefinition.CurrencyPair, tickDefinition,
-            (key, oldValue) => {
+            (key, oldValue) =>
+            {
                 _logger.LogWarning($"Tick definition already exists for {key}. Overwriting with new value. {tickDefinition}");
                 return tickDefinition;
             });
@@ -180,7 +196,7 @@ public class Spot : ISpot
                 var timer = new System.Timers.Timer(publishFrequency);
                 timer.Elapsed += (sender, e) => PublishCurrencies(publishFrequency);
                 timer.AutoReset = true;
-                _timersByFrequency.TryAdd(publishFrequency, timer);                
+                _timersByFrequency.TryAdd(publishFrequency, timer);
             }
             _logger.LogInformation($"Scheduled {ccyPair} to be published every {publishFrequency} ms");
             _pairsByFrequency[publishFrequency].Enqueue(ccyPair);
@@ -207,27 +223,27 @@ public class Spot : ISpot
 
                     double fraction = _random.NextDouble() / 100 * (_random.Next(2) % 2 == 0 ? 1 : -1) / 2;
                     _pricer.NextPrice(rates, fraction, _random.Next(2) % 2 == 0, _ccyPairLimitMap[pairKey]);
-                    rates[2] = Math.Abs(rates[0] + rates[1])/2;                    
-                    if(_logger.IsEnabled(LogLevel.Debug))
+                    rates[2] = Math.Abs(rates[0] + rates[1]) / 2;
+                    if (_logger.IsEnabled(LogLevel.Debug))
                         _logger.LogDebug($"Updated {pairKey} with {rates[0]}, {rates[1]}, {rates[2]}");
-                    OnTickUpdate?.Invoke(pairKey + " : " + rates[0] + ", " + rates[1] + ", "+ rates[2]);                    
+                    OnTickUpdate?.Invoke(pairKey + " : " + rates[0] + ", " + rates[1] + ", " + rates[2]);
                 }
             });
         }
     }
-    
+
     private void InitializeDataStructures()
     {
         _currencyPairs = new ConcurrentDictionary<string, (double[], int)>();
         _pairsByFrequency = new ConcurrentDictionary<int, ConcurrentQueue<string>>();
-        _timersByFrequency = new ConcurrentDictionary<int, System.Timers.Timer>();        
+        _timersByFrequency = new ConcurrentDictionary<int, System.Timers.Timer>();
     }
 
     private void ClearDataStructuresAndStopTimers()
     {
         _logger.LogInformation($"Clearing data structures and stopping timers.");
         _currencyPairs?.Clear();
-        _pairsByFrequency?.Clear();        
+        _pairsByFrequency?.Clear();
         if (_timersByFrequency?.Count > 0)
         {
             foreach (var timer in _timersByFrequency.Values)
