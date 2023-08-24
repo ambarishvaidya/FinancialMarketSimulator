@@ -53,8 +53,8 @@ namespace ConsoleClientForex
             _addNewPair.Stop();
             _logger.LogInformation("Adding new Ccy Pair ABCPQR !");
             spot.AddTickDefinition(new TickDefinition("ABCPQR", 123.456, 123.478, 0.55, 1000));
-            //spot.Stop();
-            //spot.Start();
+            spot.Stop();
+            spot.Start();
         }
 
         private void StopTimer_Elapsed(object sender, ElapsedEventArgs e)
