@@ -93,8 +93,8 @@ namespace ConsoleClientForex
             _testFilePath = Path.Combine(Path.GetTempPath(), TestForexSpotFileName);
             using (StreamWriter sw = new StreamWriter(_testFilePath))
             {
-                sw.WriteLine("CurrencyPair,Bid,Ask,Last,PublishFrequencyInMs");
-                sw.WriteLine("EURUSD, 1.1234, 1.1235, 1.1236, 150");
+                sw.WriteLine("CurrencyPair,Bid,Ask,Spread,PublishFrequencyInMs");
+                sw.WriteLine("EURUSD, 1.1234, 1.1235, 1.1236, 1500");
                 sw.WriteLine("EURGBP1, 0.8901, 0.8902, 0.8903, 123");
                 sw.WriteLine("EURGBP2, 0.8901, 0.8902, 0.8903, 123");
                 sw.WriteLine("EURGBP3, 0.8901, 0.8902, 0.8903, 123");
