@@ -30,7 +30,7 @@ namespace Forex
                         ColumnDefinitionHelper.CreateStringColumn("CurrencyPair", "CurrencyPair"),
                         ColumnDefinitionHelper.CreateDoubleColumn("Bid", "Bid"),
                         ColumnDefinitionHelper.CreateDoubleColumn("Ask", "Ask"),
-                        ColumnDefinitionHelper.CreateDoubleColumn("Last", "Last"),
+                        ColumnDefinitionHelper.CreateDoubleColumn("Spread", "Spread"),
                         ColumnDefinitionHelper.CreateIntColumn("PublishFrequencyInMs", "PublishFrequencyInMs"),
                     }, new FileDetails()
                     {
@@ -39,7 +39,7 @@ namespace Forex
                     }));
                 foreach (Tick tick in parser.Parse())
                 {
-                    addTickDefinition(new TickDefinition(tick.CurrencyPair, tick.Bid, tick.Ask, tick.Last, tick.PublishFrequencyInMs));
+                    addTickDefinition(new TickDefinition(tick.CurrencyPair, tick.Bid, tick.Ask, tick.Spread, tick.PublishFrequencyInMs));
                 }
             }
             catch (Exception oex)
@@ -54,7 +54,7 @@ namespace Forex
         public string CurrencyPair { get; set; }
         public double Bid { get; set; }
         public double Ask { get; set; }
-        public double Last { get; set; }
+        public double Spread { get; set; }
         public int PublishFrequencyInMs { get; set; }
     }
 }

@@ -83,7 +83,7 @@ public class TestSpot
         tickDefinition = new TickDefinition("EURUSD", 2.0, 2.0, 2.0, 1);
         spot.AddTickDefinition(tickDefinition);
         TickDefinition eurusd = spot["EURUSD"];
-        Assert.IsTrue(Double.Equals(eurusd.Bid, 2.0) && Double.Equals(eurusd.Ask, 2.0) && Double.Equals(eurusd.Last, 2.0) && eurusd.PublishFrequencyInMs == 1);
+        Assert.IsTrue(Double.Equals(eurusd.Bid, 2.0) && Double.Equals(eurusd.Ask, 2.0) && Double.Equals(eurusd.Spread, 2.0) && eurusd.PublishFrequencyInMs == 1);
     }
 
     [Test]
@@ -176,7 +176,7 @@ public class TestSpot
         ILoggerFactory loggerFactory = new LoggerFactory();
         using (StreamWriter sw = new StreamWriter(_testFilePath))
         {
-            sw.WriteLine("CurrencyPair,Bid,Ask,Last,PublishFrequencyInMs");
+            sw.WriteLine("CurrencyPair,Bid,Ask,Spread,PublishFrequencyInMs");
             sw.WriteLine("EURUSD|1.0|1.0|1.0|1");
             sw.WriteLine("EURUSD|2.0|2.0,2.0|1");
         }
@@ -191,7 +191,7 @@ public class TestSpot
         ILoggerFactory loggerFactory = new LoggerFactory();
         using (StreamWriter sw = new StreamWriter(_testFilePath))
         {
-            sw.WriteLine("CurrencyPair,Bid,Ask,Last,PublishFrequencyInMs");
+            sw.WriteLine("CurrencyPair,Bid,Ask,Spread,PublishFrequencyInMs");
             sw.WriteLine("EURUSD,1.0,1.0,1.0,1");
             sw.WriteLine("EURUSD,2.0,2.0,2.0,1");
         }
@@ -216,7 +216,7 @@ public class TestSpot
         ILoggerFactory loggerFactory = new LoggerFactory();
         using (StreamWriter sw = new StreamWriter(_testFilePath))
         {
-            sw.WriteLine("CurrencyPair,Bid,Ask,Last,PublishFrequencyInMs");
+            sw.WriteLine("CurrencyPair,Bid,Ask,Spread,PublishFrequencyInMs");
             sw.WriteLine("EURUSD,1.0,1.0,1.0,1");
             sw.WriteLine("USDJPY,2.0,2.0,2.0,1");
             sw.WriteLine("USDGBP,2.0,2.0,2.0,1");
@@ -232,7 +232,7 @@ public class TestSpot
         ILoggerFactory loggerFactory = new LoggerFactory();
         using (StreamWriter sw = new StreamWriter(_testFilePath))
         {
-            sw.WriteLine("CurrencyPair,Bid,Ask,Last,PublishFrequencyInMs");
+            sw.WriteLine("CurrencyPair,Bid,Ask,Spread,PublishFrequencyInMs");
             sw.WriteLine("EURUSD,0,0,0,1");
             sw.WriteLine("USDJPY,2.0,2.0,2.0,1");
             sw.WriteLine("USDGBP,2.0,2.0,2.0,1");
@@ -249,7 +249,7 @@ public class TestSpot
         ILoggerFactory loggerFactory = new LoggerFactory();
         using (StreamWriter sw = new StreamWriter(_testFilePath))
         {
-            sw.WriteLine("CurrencyPair,Bid,Ask,Last,PublishFrequencyInMs");
+            sw.WriteLine("CurrencyPair,Bid,Ask,Spread,PublishFrequencyInMs");
             sw.WriteLine(data);
             sw.WriteLine("USDJPY,2.0,2.0,2.0,1");
             sw.WriteLine("USDGBP,2.0,2.0,2.0,1");

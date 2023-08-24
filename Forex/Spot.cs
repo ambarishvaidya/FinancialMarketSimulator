@@ -154,7 +154,7 @@ public class Spot : ISpot
 
         foreach (TickDefinition tickDefinition in _tickDefinitionsDictionary.Values)
         {
-            var pl = _pricer.SetPriceLimitForBidAsk(tickDefinition.Bid, tickDefinition.Ask);
+            var pl = _pricer.SetPriceLimitForBidAskSpread(tickDefinition.Bid, tickDefinition.Ask, tickDefinition.Spread);
             _logger.LogInformation($"Price Limit for {tickDefinition.CurrencyPair} is {pl}");
             _ccyPairLimitMap.Add(tickDefinition.CurrencyPair, pl);
         }
@@ -169,7 +169,7 @@ public class Spot : ISpot
         {
             int publishFrequency = tickDefinition.PublishFrequencyInMs.AdjustedPublishTime(PUBLISH_FREQUENCY);
             var ccyPair = tickDefinition.CurrencyPair;
-            var dataTuple = (new double[] { tickDefinition.Bid, tickDefinition.Ask, tickDefinition.Last }, publishFrequency);
+            var dataTuple = (new double[] { tickDefinition.Bid, tickDefinition.Ask, tickDefinition.Spread }, publishFrequency);
 
             _currencyPairs.AddOrUpdate(ccyPair, dataTuple, (key, oldValue) => dataTuple);
             if (!_pairsByFrequency.ContainsKey(publishFrequency))

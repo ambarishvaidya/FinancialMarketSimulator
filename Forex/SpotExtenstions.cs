@@ -17,6 +17,6 @@ internal static class SpotExtensions
 
     public static bool IsTickDefinitionValid(this TickDefinition tickDefinition)
     {
-        return tickDefinition.Bid > 0 && tickDefinition.Ask > 0 && tickDefinition.Last > 0;
+        return tickDefinition.Bid > 0 && tickDefinition.Ask > 0 && tickDefinition.Spread > 0;
     }
 }
