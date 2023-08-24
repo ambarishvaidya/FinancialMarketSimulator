@@ -208,7 +208,6 @@ public class Spot : ISpot
                     double fraction = _random.NextDouble() / 100 * (_random.Next(2) % 2 == 0 ? 1 : -1) / 2;
                     _pricer.NextPrice(rates, fraction, _random.Next(2) % 2 == 0, _ccyPairLimitMap[pairKey]);
                     rates[2] = Math.Abs(rates[0] + rates[1])/2;
-                    //GenerateRandomDeviation(rates,_random.NextDouble(), _random.Next(1, 3), _random.Next(1, 10) %  2 == 0);
                     _logger.LogInformation($"Updated {pairKey} with {rates[0]}, {rates[1]}, {rates[2]}");
                     OnTickUpdate?.Invoke(pairKey + " : " + rates[0] + ", " + rates[1] + ", "+ rates[2]);                    
                 }
@@ -240,28 +239,6 @@ public class Spot : ISpot
             _currentstate = State.Stopped;
         }
         _logger.LogInformation($"Current State: {CurrentState}");
-    }
-
-    internal void GenerateRandomDeviation(Span<double> rates, double random, int bidorAskOrLast, bool addFraction)
-    {
-        // Generate a random number between the specified minDeviation and maxDeviation
-        int multiplier = addFraction ? 1 : -1;
-        double fraction = (random / 100 * multiplier) / 2;
-        int bidOrAskOrBoth = bidorAskOrLast > 2 ? 1 : bidorAskOrLast;//1 for bid, 2 for ask
-        if (bidOrAskOrBoth == 1)
-        {
-            rates[0] = Math.Round(rates[0] + fraction, 4);
-            if (rates[0] >= rates[1])
-                rates[1] = Math.Round(rates[1] + fraction, 4);
-        }
-        else if (bidOrAskOrBoth == 2)
-        {
-            rates[1] = Math.Round(rates[1] + fraction, 4);
-            if (rates[0] >= rates[1])
-                rates[0] = Math.Round(rates[0] + fraction, 4);
-        }
-
-        rates[2] = Math.Round((rates[0] + rates[1]) / 2, 4);
     }
 }
 
