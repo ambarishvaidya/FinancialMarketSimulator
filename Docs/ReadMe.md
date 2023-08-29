@@ -8,7 +8,7 @@ Data Simulator offers a streamlined way to generate and work with dummy data.
 ## Dependencies
   - [CsvObjectify](https://github.com/ambarishvaidya/CsvObjectify)
   - [PriceProducer](https://github.com/ambarishvaidya/MarketDataProducer) 
-  - Microsoft.Extennsions.Logging
+  - Microsoft.Extensions.Logging
 
 ## Features 
 
